@@ -1,4 +1,4 @@
-(ns com.jd.bdp.magpie.magpie-eggs-clj.albatross.core
+(ns com.jd.bdp.magpie.albatross.core
   (:gen-class)
   (:require [clojure.tools.logging :as log]
             [com.jd.bdp.magpie.magpie-framework-clj.task-executor :as task-executor]))

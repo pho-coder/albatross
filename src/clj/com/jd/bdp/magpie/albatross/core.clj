@@ -1,7 +1,8 @@
 (ns com.jd.bdp.magpie.albatross.core
   (:gen-class)
   (:require [clojure.tools.logging :as log]
-            [com.jd.bdp.magpie.magpie-framework-clj.task-executor :as task-executor]))
+            [com.jd.bdp.magpie.magpie-framework-clj.task-executor :as task-executor]
+            [thrift-clj.core :as thrift]))
 
 (defn prepare-fn [job-id]
   (log/info job-id "prepare!"))

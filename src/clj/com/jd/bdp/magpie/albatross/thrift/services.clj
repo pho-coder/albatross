@@ -1,4 +1,4 @@
-(ns com.jd.bdp.magpie.albatross.heartbeat)
+(ns com.jd.bdp.magpie.albatross.thrift.services)
 
 (defn coast-heartbeat
   [uuid jobid]

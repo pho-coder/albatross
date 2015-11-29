@@ -1,17 +1,9 @@
 (ns com.jd.bdp.magpie.albatross.thrift.server
   (:require [thrift-clj.core :as thrift]
-;            [clojure.tools.logging :as log]
-            [taoensso.timbre :as log]
-            [com.jd.bdp.magpie.albatross.thrift.services :as services])
+            [clojure.tools.logging :as log]
+;            [taoensso.timbre :as log]
+)
   (:import [org.apache.thrift.transport TTransportException]))
-
-(thrift/import
- (:services com.jd.bdp.magpie.albatross.generated.Coast))
-
-(thrift/defservice coast-heartbeat-service
-  Coast
-  (heartbeat [uuid jobid]
-             (services/coast-heartbeat uuid jobid)))
 
 (def ^:dynamic *coast-server* (atom nil))
 (def ^:dynamic *ports* (atom nil))
@@ -48,13 +40,3 @@
 (defn start-server
   [service]
   (reset! *coast-server* (get-server service)))
-
-(defn -main
-  []
-  (log/info "hi")
-  (start-server coast-heartbeat-service)
-  (while true
-    (log/info @*coast-server-port*)
-    (log/info (.size @*ports*))
-    (Thread/sleep 1000))
-  (log/info "bye"))

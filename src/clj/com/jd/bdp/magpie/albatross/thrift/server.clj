@@ -39,4 +39,5 @@
 
 (defn start-server
   [service]
-  (reset! *coast-server* (get-server service)))
+  (reset! *coast-server* (get-server service))
+  )

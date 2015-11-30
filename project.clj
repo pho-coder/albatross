@@ -10,8 +10,9 @@
                                                     com.sun.jmx/jmxri]]
                  [org.clojure/tools.logging "0.3.1"]
                  [thrift-clj "0.3.0"]
-;                 [ch.qos.logback/logback-classic "1.1.3"]
-                 [com.jd.bdp.magpie/magpie-framework-clj "0.1.0-SNAPSHOT"]]
+                 [clj-zookeeper "0.1.0-SNAPSHOT"]
+                 [com.jd.bdp.magpie/magpie-framework-clj "0.1.0-SNAPSHOT"]
+                 [com.jd.bdp.magpie/magpie-utils "0.1.1-SNAPSHOT"]]
   :main com.jd.bdp.magpie.albatross.core
   :profiles {:uberjar {:aot [com.jd.bdp.magpie.albatross.core]}
              :dev {:dependencies [[com.taoensso/timbre "4.1.4"]]}}

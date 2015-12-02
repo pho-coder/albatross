@@ -15,7 +15,7 @@
 
 (defn check-job-exist?
   [jobid]
-  (contains? @*all-jobs*))
+  (contains? @*all-jobs* jobid))
 
 (defn get-uuid
   [jobid]

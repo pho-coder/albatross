@@ -30,7 +30,6 @@
                (thrift/serve!
                 (thrift/multi-threaded-server
                  service (get-random-port)
-                 :bind "127.0.0.1"
                  :protocol :compact))
                (catch TTransportException e
                  (log/warn e)

@@ -27,6 +27,7 @@
 (defn run-fn [job-id]
   (log/info job-id "run!")
   (Thread/sleep 3000)
+  (log/info "coast server:" @server/*coast-server*)
   (log/info "coast server port:" @server/*coast-server-port*)
   (log/info "coasts:" @heartbeats/*all-jobs*))
 

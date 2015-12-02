@@ -1,4 +1,4 @@
-(defproject com.jd.bdp.magpie/albatross "0.1.0.20151120-SNAPSHOT"
+(defproject com.jd.bdp.magpie/albatross "0.1.0.2015120201-SNAPSHOT"
   :description "magpie plumber jobs sorter"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
@@ -12,7 +12,7 @@
                  [thrift-clj "0.3.0"]
                  [clj-zookeeper "0.2.0-SNAPSHOT"]
                  [com.jd.bdp.magpie/magpie-framework-clj "0.1.0-SNAPSHOT"]
-                 [com.jd.bdp.magpie/magpie-utils "0.1.2-SNAPSHOT"]]
+                 [com.jd.bdp.magpie/magpie-utils "0.1.3-SNAPSHOT"]]
   :main com.jd.bdp.magpie.albatross.core
   :profiles {:uberjar {:aot [com.jd.bdp.magpie.albatross.core]}
              :dev {:dependencies [[com.taoensso/timbre "4.1.4"]]}}

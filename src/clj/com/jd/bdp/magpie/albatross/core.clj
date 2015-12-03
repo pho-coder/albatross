@@ -8,7 +8,7 @@
             [com.jd.bdp.magpie.albatross.thrift.server :as server]
             [com.jd.bdp.magpie.albatross.thrift.services :as services]
             [com.jd.bdp.magpie.albatross.util.utils :as utils]
-            [com.jd.bdp.magpie.albatross.heartbeats :as heartbeats]))
+            [com.jd.bdp.magpie.albatross.controller :as controller]))
 
 (defn prepare-fn
   [job-id]
@@ -26,10 +26,11 @@
 
 (defn run-fn [job-id]
   (log/info job-id "run!")
-  (Thread/sleep 3000)
-  (log/info "coast server:" @server/*coast-server*)
+  (Thread/sleep 1000)
   (log/info "coast server port:" @server/*coast-server-port*)
-  (log/info "coasts:" @heartbeats/*all-jobs*))
+  (log/info "operations queue size:" (.size controller/operations-queue))
+  (log/info "jobs:" @controller/*all-jobs*)
+  (controller/deal-coast-operations))
 
 (defn close-fn [job-id]
   (log/info job-id "close!"))

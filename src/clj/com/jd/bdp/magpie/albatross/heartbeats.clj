@@ -1,35 +1,19 @@
 (ns com.jd.bdp.magpie.albatross.heartbeats
+  (:use [com.jd.bdp.magpie.albatross.bootstrap])
   (:require [clojure.data.json :as json]
-            [clojure.tools.logging :as log])
-  (:import [java.util.concurrent LinkedBlockingQueue]))
+            [clojure.tools.logging :as log]
 
-(def HEARTBEAT-COAST "heartbeat-coast")
-(def STATUS-INIT "init")
-(def STATUS-RUNNING "running")
-(def STATUS-REJECT "reject")
-(def OPERATION-TYPE-ADD-JOB "add-job")
-
-;; {jobid : {:uuid uuid :start-time start-time}}
-(def ^:dynamic *all-jobs* (atom (hash-map)))
-(def ^:dynamic operations-queue (LinkedBlockingQueue. 10000))
-
-(defn check-job-exist?
-  [jobid]
-  (contains? @*all-jobs* jobid))
-
-(defn get-uuid
-  [jobid]
-  (get (get @*all-jobs* jobid) :uuid))
+            [com.jd.bdp.magpie.albatross.controller :as controller]))
 
 (defn add-new-job
   [uuid jobid]
-  (.put operations-queue {:type OPERATION-TYPE-ADD-JOB
-                          :uuid uuid
-                          :jobid jobid})
+  (.put controller/operations-queue {:type OPERATION-TYPE-ADD-JOB
+                                     :uuid uuid
+                                     :jobid jobid})
   (loop [retry-times 5]
     (if (<= retry-times 0)
       {:status STATUS-INIT}
-      (let [existing-uuid (get-uuid jobid)]
+      (let [existing-uuid (controller/get-uuid jobid)]
       (if-not (nil? existing-uuid)
         (if (= uuid existing-uuid)
           {:status STATUS-RUNNING}
@@ -40,8 +24,8 @@
 
 (defn coast-heartbeat
   [uuid jobid]
-  (if (check-job-exist? jobid)
-    (let [existing-uuid (get-uuid jobid)]
+  (if (controller/check-job-exist? jobid)
+    (let [existing-uuid (controller/get-uuid jobid)]
       (if (= uuid existing-uuid)
         (json/write-str {:status STATUS-RUNNING})
         (json/write-str {:status STATUS-REJECT

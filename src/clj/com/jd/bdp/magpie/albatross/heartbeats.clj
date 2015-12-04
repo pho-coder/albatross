@@ -22,12 +22,19 @@
         (do (Thread/sleep 300)
             (recur (- retry-times 1))))))))
 
+(defn update-job-heartbeat
+  [uuid jobid]
+  (.put controller/operations-queue {:type OPERATION-TYPE-UPDATE-JOB
+                                     :uuid uuid
+                                     :jobid jobid}))
+
 (defn coast-heartbeat
   [uuid jobid]
   (if (controller/check-job-exist? jobid)
     (let [existing-uuid (controller/get-uuid jobid)]
       (if (= uuid existing-uuid)
-        (json/write-str {:status STATUS-RUNNING})
+        (do (update-job-heartbeat uuid jobid)
+            (json/write-str {:status (get @controller/*all-jobs* jobid)}))
         (json/write-str {:status STATUS-REJECT
                          :info (str jobid " has been submmited by " existing-uuid " NOT YOU!")})))
     (json/write-str (add-new-job uuid jobid))))

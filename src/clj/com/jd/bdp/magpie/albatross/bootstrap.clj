@@ -6,4 +6,8 @@
 (def STATUS-INIT "init")
 (def STATUS-RUNNING "running")
 (def STATUS-REJECT "reject")
+(def STATUS-FINISH "finish")
+(def STATUS-STOP "stop")
 (def OPERATION-TYPE-ADD-JOB "add-job")
+(def OPERATION-TYPE-UPDATE-JOB "update-job")
+(def DEAD-TIMEOUT-MILLIS 20000)

@@ -30,7 +30,8 @@
   (log/info "coast server port:" @server/*coast-server-port*)
   (log/info "operations queue size:" (.size controller/operations-queue))
   (log/info "jobs:" @controller/*all-jobs*)
-  (controller/deal-coast-operations))
+  (controller/check-job-status!)
+  (controller/deal-coast-operations!))
 
 (defn close-fn [job-id]
   (log/info job-id "close!"))

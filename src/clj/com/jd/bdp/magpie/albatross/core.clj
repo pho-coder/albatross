@@ -28,10 +28,12 @@
   (log/info job-id "run!")
   (Thread/sleep 1000)
   (log/info "coast server port:" @server/*coast-server-port*)
-  (log/info "operations queue size:" (.size controller/operations-queue))
+  (log/info "coast operations queue size:" (.size controller/coast-operations-queue))
   (log/info "jobs:" @controller/*all-jobs*)
-  (controller/check-job-status!)
-  (controller/deal-coast-operations!))
+  (log/info "apps:" @controller/*all-apps*)
+  (controller/diff-jobs-apps!)
+  (controller/deal-apps!)
+  (controller/deal-coasts!))
 
 (defn close-fn [job-id]
   (log/info job-id "close!"))

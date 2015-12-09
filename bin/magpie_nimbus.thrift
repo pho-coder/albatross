@@ -14,11 +14,17 @@
 #  limitations under the License. See accompanying LICENSE file.
 #
 
-namespace java com.jd.bdp.magpie.albatross.generated
+namespace java com.jd.magpie.generated
 
-service Coast {
+service Nimbus {
 
-  string heartbeat(1: string uuid, 2: string jobid)
+  string submitTopology(1: string id, 2: string jar, 3: string klass)
+  string killTopology(1: string id)
+  string pauseTopology(1: string id)
+  string activeTopology(1: string id)
+  string reloadTopology(1: string id)
 
+  string submitTask(1: string id, 2: string jar, 3: string klass, 4: string group, 5: string type)
+  string operateTask(1: string id, 2: string command)
 }
 

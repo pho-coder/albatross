@@ -8,7 +8,8 @@
             [com.jd.bdp.magpie.albatross.thrift.server :as server]
             [com.jd.bdp.magpie.albatross.thrift.services :as services]
             [com.jd.bdp.magpie.albatross.util.utils :as utils]
-            [com.jd.bdp.magpie.albatross.controller :as controller]))
+            [com.jd.bdp.magpie.albatross.controller :as controller]
+            [com.jd.bdp.magpie.albatross.thrift.client :as client]))
 
 (defn prepare-fn
   [job-id]
@@ -21,18 +22,21 @@
     (utils/set-albatross-info albatross-node {:ip (magpie-utils/get-ip)
                                               :port @server/*coast-server-port*
                                               :jobs-num 0
-                                              :apps-num 0})
+                                              :tasks-num 0})
+    (client/get-nimbus-client)
     (log/info "albatross" job-id "is flying!")))
 
 (defn run-fn [job-id]
   (log/info job-id "run!")
   (Thread/sleep 1000)
+  (if @client/*reset-nimbus-client*
+    (do (client/get-nimbus-client)
+        (reset! client/*reset-nimbus-client* false)))
   (log/info "coast server port:" @server/*coast-server-port*)
   (log/info "coast operations queue size:" (.size controller/coast-operations-queue))
   (log/info "jobs:" @controller/*all-jobs*)
-  (log/info "apps:" @controller/*all-apps*)
-  (controller/diff-jobs-apps!)
-  (controller/deal-apps!)
+  (log/info "tasks:" @controller/*all-tasks*)
+  (controller/deal-tasks!)
   (controller/deal-coasts!))
 
 (defn close-fn [job-id]

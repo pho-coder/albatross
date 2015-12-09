@@ -2,7 +2,7 @@
   (:use [com.jd.bdp.magpie.albatross.bootstrap])
   (:require [clojure.data.json :as json]
             [clojure.tools.logging :as log]
-
+            
             [com.jd.bdp.magpie.albatross.controller :as controller]))
 
 (defn add-new-job
@@ -27,3 +27,13 @@
         (json/write-str {:status STATUS-REJECT
                          :info (str jobid " has been submmited by " existing-uuid " NOT YOU!")})))
     (json/write-str (add-new-job uuid jobid))))
+
+(defn update-task-heartbeat
+  [jobid taskid status]
+  (.put controller/task-heartbeats-queue {:job-id jobid
+                                         :task-id taskid
+                                         :status status}))
+
+(defn island-heartbeat
+  [jobid taskid status]
+  (update-task-heartbeat jobid taskid status))

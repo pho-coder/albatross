@@ -33,3 +33,14 @@
             (zk/set-data albatross-node (magpie-utils/map->bytes info)))
         (do (log/error e)
             (throw e))))))
+
+(defn get-nimbus
+  [nimbus-path]
+  (let [nodes (zk/get-children nimbus-path)
+        size (.size nodes)]
+    (if (< size 1)
+      nil
+      (let [nimbuses (to-array nodes)
+            _ (java.util.Arrays/sort nimbuses)
+            nimbus (first nimbuses)]
+        (magpie-utils/bytes->map (zk/get-data (str nimbus-path "/" nimbus)))))))

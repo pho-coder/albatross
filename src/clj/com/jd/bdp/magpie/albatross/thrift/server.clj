@@ -1,8 +1,6 @@
 (ns com.jd.bdp.magpie.albatross.thrift.server
   (:require [thrift-clj.core :as thrift]
-            [clojure.tools.logging :as log]
-;            [taoensso.timbre :as log]
-)
+            [clojure.tools.logging :as log])
   (:import [org.apache.thrift.transport TTransportException]))
 
 (def ^:dynamic *coast-server* (atom nil))

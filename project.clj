@@ -1,4 +1,4 @@
-(defproject com.jd.bdp.magpie/albatross "0.1.0.2015120707-SNAPSHOT"
+(defproject com.jd.bdp.magpie/albatross "0.1.0.2015120904-SNAPSHOT"
   :description "magpie plumber jobs sorter"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
@@ -26,4 +26,4 @@
             :source-paths ["bin"]
             :target-path "target"
             :java-gen-opts "beans,hashcode,nocamel"
-            :force-compile false})
+            :force-compile true})

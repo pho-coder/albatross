@@ -70,7 +70,7 @@
 (defn set-job-info
   [job-node info]
   (try
-    (zk/set-data job-node job-node (magpie-utils/map->bytes info))
+    (zk/set-data job-node (magpie-utils/map->bytes info))
     true
     (catch Exception e
       (log/error e)

@@ -59,9 +59,9 @@
     (let [jobs-path "/albatross/jobs/"
           job-node (str jobs-path job-id)
           now (magpie-utils/current-time-millis)]
-      (utils/register-job job-id {"albatross" @albatross-id
-                                  "start-time" now
-                                  "update-time" now})
+      (utils/register-job job-node {"albatross" @albatross-id
+                                    "start-time" now
+                                    "update-time" now})
       (doseq [task-conf (parser/parse job-id)]
         (let [task-id (key task-conf)
               conf (val task-conf)

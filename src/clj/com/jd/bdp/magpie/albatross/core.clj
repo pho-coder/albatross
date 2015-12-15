@@ -13,7 +13,9 @@
 
 (defn prepare-fn
   [job-id]
-  (let [albatrosses-path "/albatrosses/"
+  (reset! controller/albatross-id job-id)
+  (let [albatross-path "/albatross"
+        albatrosses-path (str albatross-path "/albatrosses/")
         albatross-node (str albatrosses-path job-id)]
     (while (not (utils/create-albatross-node albatross-node))
       (log/warn "zk albatross node exists:" job-id)

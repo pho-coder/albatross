@@ -5,8 +5,12 @@
             [com.jd.bdp.magpie.util.utils :as magpie-utils]
 
             [com.jd.bdp.magpie.albatross.conf-parser :as parser]
-            [com.jd.bdp.magpie.albatross.thrift.client :as client])
+            [com.jd.bdp.magpie.albatross.thrift.client :as client]
+            [com.jd.bdp.magpie.albatross.util.utils :as utils])
   (:import [java.util.concurrent LinkedBlockingQueue]))
+
+;; albatross-id
+(def ^:dynamic albatross-id (atom nil))
 
 ;; {job-id {:uuid uuid :start-time start-time :update-time update-time :status init}}
 (def ^:dynamic *all-jobs* (atom (hash-map)))
@@ -42,18 +46,31 @@
       {:yours? false
        :info job})))
 
+(defn add-task
+  [task-id jar klass group type]
+  (if (utils/check-magpie-task-exists? task-id)
+    (log/error "task" task-id "EXISTS in /assignments/!")
+    (client/submit-task task-id jar klass group type)))
+
 (defn add-tasks!
   [job-id]
   (if (check-job-in-tasks? job-id)
     (log/warn job-id " is in *all-tasks*")
-    (doseq [task-conf (parser/parse job-id)]
-      (let [task-id (key task-conf)
-            conf (val task-conf)
-            now (magpie-utils/current-time-millis)]
-        (swap! *all-tasks* assoc-in [job-id task-id] {:start-time now
-                                                      :update-time now
-                                                      :status STATUS-INIT})
-        (client/submit-task task-id "a.jar" "a.b" "default" "memory")))))
+    (let [jobs-path "/albatross/jobs/"
+          job-node (str jobs-path job-id)
+          now (magpie-utils/current-time-millis)]
+      (utils/register-job job-id {"albatross" @albatross-id
+                                  "start-time" now
+                                  "update-time" now})
+      (doseq [task-conf (parser/parse job-id)]
+        (let [task-id (key task-conf)
+              conf (val task-conf)
+              now (magpie-utils/current-time-millis)]
+          (swap! *all-tasks* assoc-in [job-id task-id] {:start-time now
+                                                        :update-time now
+                                                        :status STATUS-INIT
+                                                        :conf conf})
+          (add-task task-id (:jar conf) (:klass conf) (:group conf) (:type conf)))))))
 
 (defn add-job!
   [uuid job-id]
@@ -102,6 +119,10 @@
 
 (defn delete-tasks!
   [job-id]
+  (doseq [one (get @*all-tasks* job-id)]
+    (let [task-id (key one)
+          task-info (val one)]
+      (client/operate-task task-id "kill")))
   (swap! *all-tasks* dissoc job-id))
 
 (defn check-task-status!
@@ -129,7 +150,8 @@
       (if (nil? (get (get @*all-tasks* job-id) task-id))
         (log/warn job-id task-id "NOT exists in *all-tasks")
       (condp = status
-        STATUS-INIT (swap! *all-tasks* assoc-in [job-id task-id :update-time] now)
+        STATUS-INIT (do (swap! *all-tasks* assoc-in [job-id task-id :update-time] now)
+                        (swap! *all-tasks* assoc-in [job-id task-id :status] STATUS-INIT))
         STATUS-RUNNING (do (swap! *all-tasks* assoc-in [job-id task-id :update-time] now)
                            (swap! *all-tasks* assoc-in [job-id task-id :status] STATUS-RUNNING))
         STATUS-FINISH (do (swap! *all-tasks* assoc-in [job-id task-id :update-time] now)

@@ -20,18 +20,28 @@
                         (catch BuffaloException e (.printStackTrace e) (log/error e) nil))]
     (template-bean->map template-bean)))
 
-(defn split-job
-  "拆分任务为多个子任务，先按数据源分"
-  [template-bean]
-  )
+(defn- default-split-fn
+  "默认拆分方法：拆分任务为多个子任务，按数据源分"
+  [template-bean job-id]
+  (let [extSrcDsList (:extSrcDsList template-bean)
+        base-bean (assoc template-bean :extSrcDsList [])
+        task-list (map (fn [item]
+                         (assoc base-bean :extSrcDsList [item]))
+                       extSrcDsList)]
+    (reduce (fn [[tasks i] item]
+              [(assoc tasks (keyword (str job-id "-" i)) item) (inc i)])
+            [{} 1]
+            task-list)))
 
 (defn parse
   "return struct: 
   ;; one task one map
   {task-id [;; one thread in task one map
             {:source source :target target :sql sql}]}"
-  [job-id]
-  (clojure.pprint/pprint (get-template-bean job-id))
+  [job-id & {:keys [strategy-fn]
+             :or {strategy-fn default-split-fn}}]
+  (let [abean (strategy-fn (get-template-bean job-id) job-id)]
+    #_(clojure.pprint/pprint abean))
 
   ;临时返回的测试值
   {"test-task-0" (list {:source "mysql"

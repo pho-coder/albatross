@@ -83,11 +83,15 @@
         (add-tasks! job-id))))
 
 (defn update-job!
-  [uuid jobid]
-  (let [yours (check-yours? uuid jobid)]
+  [uuid job-id]
+  (let [yours (check-yours? uuid job-id)]
     (if (:yours? yours)
-      (swap! *all-jobs* assoc-in [jobid :update-time] (magpie-utils/current-time-millis))
+      (swap! *all-jobs* assoc-in [job-id :update-time] (magpie-utils/current-time-millis))
       (log/error "update job error by uuid:" uuid "job:" (:info yours)))))
+
+(defn update-job-status!
+  [job-id status]
+  (swap! *all-jobs* assoc-in [job-id :status] status))
 
 (defn deal-coast-operations!
   []
@@ -125,6 +129,27 @@
       (client/operate-task task-id "kill")))
   (swap! *all-tasks* dissoc job-id))
 
+(defn check-all-tasks-stop?
+  [tasks]
+  (reduce (fn [a o]
+            (or a (if (= (:status (val o)) STATUS-STOP)
+                    true
+                    false))) false tasks))
+
+(defn check-all-tasks-running?
+  [tasks]
+  (reduce (fn [a o]
+            (and a (if (or (= (:status (val o)) STATUS-RUNNING) (= (:status (val o)) STATUS-FINISH))
+                     true
+                     false))) true tasks))
+
+(defn check-all-tasks-finish?
+  [tasks]
+  (reduce (fn [a o]
+            (and a (if (= (:status (val o)) STATUS-FINISH)
+                     true
+                     false))) true tasks))
+
 (defn check-task-status!
   []
   (doseq [one @*all-tasks*]
@@ -132,7 +157,16 @@
           tasks (val one)]
       (if-not (contains? @*all-jobs* job-id)
         (do (log/warn "the job:" job-id "NOT exists now!" "DELETE the tasks:" tasks)
-            (delete-tasks! job-id))))))
+            (delete-tasks! job-id))
+        (if (check-all-tasks-stop? tasks)
+          (do (log/warn "some tasks stopped:" tasks)
+              (update-job-status! job-id STATUS-STOP)
+              (delete-tasks! job-id))
+          (if (check-all-tasks-finish? tasks)
+            (do (update-job-status! job-id STATUS-FINISH)
+                (delete-tasks! job-id))
+            (if (check-all-tasks-running? tasks)
+              (update-job-status! job-id STATUS-RUNNING))))))))
 
 (defn deal-coasts!
   []

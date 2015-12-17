@@ -5,6 +5,7 @@
            (java.util Date)))
 
 (def PREFIX "*p*")
+; TODO 以下信息来自哪里？
 (def BASE-CONF {:jar "magpie-test-plumber-task-0.0.1-SNAPSHOT-standalone.jar"
                 :klass "com.jd.bdp.magpie.magpie_eggs_clj.magpie_test_plumber_task.core"
                 :group "default"
@@ -16,13 +17,13 @@
   (str "plumber" PREFIX albatross-id PREFIX job-id PREFIX "task-" index))
 
 (defn template-bean->map
-  ; 因为bean方法不能迭代地执行，把JavaBean内部的JavaBean变成 Clojure Map
-  ; 没有找到合适的方法，只好用原始手段构造
+  " 因为bean方法不能迭代地执行，把JavaBean内部的JavaBean变成Map
+    没有找到合适的方法之前，只好用原始手段构造"
   [abean]
   (let [amap (bean abean)
         ext-target-ds (bean (:extTargetDs amap))
         ext-src-ds-list (map bean (:extSrcDsList amap))]
-    (assoc amap :extTargetDs ext-target-ds :extSrcDsList (take 1 ext-src-ds-list))))
+    (assoc amap :extTargetDs ext-target-ds :extSrcDsList ext-src-ds-list)))
 
 (defn get-template-bean
   [template-id]
@@ -34,6 +35,7 @@
     (template-bean->map template-bean)))
 
 (defn- generate-task-conf
+  "return a vector: [task-confs task-num]"
   [job-id task-list]
   (reduce (fn [[tasks i] item]
             (let [task-id (generate-task-name "albatross-test-0" job-id i)
@@ -43,12 +45,10 @@
           task-list))
 
 (defn- default-split-fn
-  "默认拆分方法：拆分任务为多个子任务，按数据源分"
   [template-bean job-id]
   (log/info (Date.))
   (let [extSrcDsList (:extSrcDsList template-bean)
-        base-bean (assoc template-bean :extSrcDsList [])
-        afn (fn [src] (assoc base-bean :extSrcDsList [src]))
+        afn (fn [src] (assoc template-bean :extSrcDsList src))
         task-list (map afn extSrcDsList)
         [confs _] (generate-task-conf job-id task-list)]
     confs))
@@ -60,21 +60,4 @@
             {:source source :target target :sql sql :jar jar :klass klass :group group :type type}}"
   [job-id & {:keys [strategy-fn]
              :or {strategy-fn default-split-fn}}]
-  (let [task-confs (strategy-fn (get-template-bean job-id) job-id)]
-    (clojure.pprint/pprint task-confs))
-
-  ;临时返回的测试值
-  {"plumber*p*albatross-test-0*p*test-job*p*task-0" {:source "mysql"
-                                                     :target "hadoop"
-                                                     :sql "select * from a"
-                                                     :jar "magpie-test-plumber-task-0.0.1-SNAPSHOT-standalone.jar"
-                                                     :klass "com.jd.bdp.magpie.magpie_eggs_clj.magpie_test_plumber_task.core"
-                                                     :group "default"
-                                                     :type "memory"}
-   "plumber*p*albatross-test-0*p*test-job*p*task-1" {:source "mysql"
-                                                     :target "hadoop"
-                                                     :sql "select * from b"
-                                                     :jar "magpie-test-plumber-task-0.0.1-SNAPSHOT-standalone.jar"
-                                                     :klass "com.jd.bdp.magpie.magpie_eggs_clj.magpie_test_plumber_task.core"
-                                                     :group "default"
-                                                     :type "memory"}})
+  (strategy-fn (get-template-bean job-id) job-id))

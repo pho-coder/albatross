@@ -48,7 +48,7 @@
   [template-bean job-id]
   (log/info (Date.))
   (let [extSrcDsList (:extSrcDsList template-bean)
-        afn (fn [src] (assoc template-bean :extSrcDsList src))
+        afn (fn [src] (assoc template-bean :extSrcDsList [src]))  ; 保持conf结构与原来一致，但extSrcList只有一个元素
         task-list (map afn extSrcDsList)
         [confs _] (generate-task-conf job-id task-list)]
     confs))

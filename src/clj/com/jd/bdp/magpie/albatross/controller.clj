@@ -95,7 +95,7 @@
 
 (defn deal-coast-operations!
   []
-  (while (> (.size coast-operations-queue) 0)
+  (while (pos? (.size coast-operations-queue))
     (let [operation (.poll coast-operations-queue)
           type (:type operation)
           uuid (:uuid operation)
@@ -117,9 +117,9 @@
           update-time (:update-time value)
           status (:status value)
           now (magpie-utils/current-time-millis)]
-      (if (> (- now update-time) DEAD-TIMEOUT-MILLIS)
-        (do (swap! *all-jobs* dissoc jobid)
-            (log/info "delete dead job:" one))))))
+      (when (> (- now update-time) DEAD-TIMEOUT-MILLIS)
+        (swap! *all-jobs* dissoc jobid)
+        (log/info "delete dead job:" one)))))
 
 (defn delete-tasks!
   [job-id]
@@ -175,7 +175,7 @@
 
 (defn deal-task-heartbeats!
   []
-  (while (> (.size task-heartbeats-queue) 0)
+  (while (pos? (.size task-heartbeats-queue))
     (let [one (.poll task-heartbeats-queue)
           job-id (:job-id one)
           task-id (:task-id one)

@@ -4,7 +4,7 @@
            (com.jd.exception BuffaloException)
            (java.util Date)))
 
-(def PREFIX "*p*")
+(def SEPARATOR "*p*")
 ; TODO 以下信息来自哪里？
 (def BASE-CONF {:jar "magpie-test-plumber-task-0.0.1-SNAPSHOT-standalone.jar"
                 :klass "com.jd.bdp.magpie.magpie_eggs_clj.magpie_test_plumber_task.core"
@@ -14,7 +14,7 @@
 (defn- generate-task-name
   "plumber*p*albatross-test-0*p*test-job*p*task-1"
   [albatross-id job-id index]
-  (str "plumber" PREFIX albatross-id PREFIX job-id PREFIX "task-" index))
+  (str "plumber" SEPARATOR albatross-id SEPARATOR job-id SEPARATOR "task-" index))
 
 (defn template-bean->map
   " 因为bean方法不能迭代地执行，把JavaBean内部的JavaBean变成Map

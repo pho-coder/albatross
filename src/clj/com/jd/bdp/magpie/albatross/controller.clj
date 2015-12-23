@@ -62,6 +62,7 @@
       (utils/register-job job-node {"albatross" @albatross-id
                                     "start-time" now
                                     "update-time" now})
+      ; 遍历每个conf，并依次提交远程任务
       (doseq [task-conf (parser/parse job-id)]
         (let [task-id (key task-conf)
               conf (val task-conf)

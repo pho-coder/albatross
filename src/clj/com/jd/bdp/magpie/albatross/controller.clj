@@ -107,6 +107,11 @@
                                                jobid)
         (log/error "operation type error: " operation)))))
 
+(defn delete-jobs!
+  [job-id]
+  (swap! *all-jobs* dissoc job-id)
+  (utils/delete-job-node (str "/albatross/jobs/" job-id)))
+
 (defn check-job-status!
   []
   (doseq [one @*all-jobs*]
@@ -118,7 +123,7 @@
           status (:status value)
           now (magpie-utils/current-time-millis)]
       (when (> (- now update-time) DEAD-TIMEOUT-MILLIS)
-        (swap! *all-jobs* dissoc jobid)
+        (delete-jobs! jobid)
         (log/info "delete dead job:" one)))))
 
 (defn delete-tasks!

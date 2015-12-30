@@ -38,12 +38,12 @@
   [nimbus-path]
   (let [nodes (zk/get-children nimbus-path)
         size (.size nodes)]
-    (if (< size 1)
-      nil
+    (when (>= size 1)
       (let [nimbuses (to-array nodes)
             _ (java.util.Arrays/sort nimbuses)
             nimbus (first nimbuses)]
-        (magpie-utils/bytes->map (zk/get-data (str nimbus-path "/" nimbus)))))))
+        (magpie-utils/bytes->map
+         (zk/get-data (str nimbus-path "/" nimbus)))))))
 
 (defn check-magpie-task-exists?
   [task-id]
@@ -54,9 +54,7 @@
 (defn get-job-info
   [job-node]
   (let [job-info (zk/get-data job-node)]
-    (if (nil? job-info)
-      nil
-      (magpie-utils/bytes->map job-info))))
+    (when-not (nil? job-info) (magpie-utils/bytes->map job-info))))
 
 (defn create-job-node
   [job-node]
@@ -83,4 +81,15 @@
         false)
     (if (create-job-node job-node)
       (set-job-info job-node job-info)
+      false)))
+
+(defn delete-job-node
+  [job-node]
+  (try
+    (if (zk/check-exists? job-node)
+      (do (zk/delete job-node)
+          true)
+      true)
+    (catch Exception e
+      (log/error e)
       false)))

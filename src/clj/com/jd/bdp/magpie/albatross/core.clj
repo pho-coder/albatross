@@ -31,9 +31,9 @@
 (defn run-fn [job-id]
   (log/info job-id "run!")
   (Thread/sleep 1000)
-  (if @client/*reset-nimbus-client*
-    (do (client/get-nimbus-client)
-        (reset! client/*reset-nimbus-client* false)))
+  (when @client/*reset-nimbus-client*
+    (client/get-nimbus-client)
+    (reset! client/*reset-nimbus-client* false))
   (log/info "coast server port:" @server/*coast-server-port*)
   (log/info "coast operations queue size:" (.size controller/coast-operations-queue))
   (log/info "jobs:" @controller/*all-jobs*)

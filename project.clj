@@ -1,4 +1,4 @@
-(defproject com.jd.bdp.magpie/albatross "0.1.0.2015121606-SNAPSHOT"
+(defproject com.jd.bdp.magpie/albatross "0.1.0.20151229-SNAPSHOT"
   :description "magpie plumber jobs sorter"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
@@ -27,7 +27,8 @@
   :java-source-paths ["src/java"]
   :test-paths ["test" "test"]
   :target-path "target"
-  :plugins [[lein-thriftc "0.2.3"]]
+  :plugins [[lein-thriftc "0.2.3"]
+            [lein-kibit "0.1.2"]]
   :hooks [leiningen.thriftc]
   :thriftc {:path "thrift"
             :source-paths ["bin"]

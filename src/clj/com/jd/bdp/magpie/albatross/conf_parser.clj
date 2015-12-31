@@ -60,4 +60,30 @@
             {:source source :target target :sql sql :jar jar :klass klass :group group :type type}}"
   [job-id & {:keys [strategy-fn]
              :or {strategy-fn default-split-fn}}]
-  (strategy-fn (get-template-bean job-id) job-id))
+  ; (strategy-fn (get-template-bean job-id) job-id)
+  ; TODO 以下在测试时使用
+  (let [conf-list (strategy-fn (get-template-bean job-id) job-id)]
+    (map (fn [[task-id conf]]
+           (let [ext-tar-ds (:extTargetDs conf)
+                 target-table (:targetTableName conf)
+                 sql (:sql conf)
+                 target-path (str (:extend1 ext-tar-ds) "/" target-table)
+                 ext-src-ds (first (:extSrcDsList conf))
+                 host (:dbHost ext-src-ds)
+                 user (:dbUser ext-src-ds)
+                 password (:dbPassword ext-src-ds)
+                 src-db-name (:dbName ext-src-ds)
+                 source (:dbType ext-src-ds)]
+             ; 最终的配置
+             {task-id {:source source
+                       :target target-path
+                       :host host
+                       :sqls [sql]
+                       :db-name src-db-name
+                       :user user
+                       :password password
+                       :jar "magpie-mysql2hadoop-plumber-task-0.0.1-SNAPSHOT-standalone.jar"
+                       :klass "com.jd.bdp.magpie.magpie-eggs-clj.magpie-mysql2hadoop-plumber-task.core"
+                       :group "default"
+                       :type "memory"}}))
+         conf-list)))

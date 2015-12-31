@@ -1,4 +1,4 @@
-(defproject com.jd.bdp.magpie/albatross "0.1.0.20151229-SNAPSHOT"
+(defproject com.jd.bdp.magpie/albatross "0.1.0.20151231-SNAPSHOT"
   :description "magpie plumber jobs sorter"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"

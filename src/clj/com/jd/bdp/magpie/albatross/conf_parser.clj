@@ -27,7 +27,6 @@
 
 (defn get-template-bean
   [template-id]
-  (log/info (Date.))
   (let [ps (PlumberServiceImpl.)
         template-bean (try
                         (.getTemplateById ps template-id)
@@ -66,7 +65,7 @@
     (map (fn [[task-id conf]]
            (let [ext-tar-ds (:extTargetDs conf)
                  target-table (:targetTableName conf)
-                 sql (:sql conf)
+                 sql (:sqlStr conf)
                  target-path (str (:extend1 ext-tar-ds) "/" target-table)
                  ext-src-ds (first (:extSrcDsList conf))
                  host (:dbHost ext-src-ds)
@@ -83,7 +82,7 @@
                        :user user
                        :password password
                        :jar "magpie-mysql2hadoop-plumber-task-0.0.1-SNAPSHOT-standalone.jar"
-                       :klass "com.jd.bdp.magpie.magpie-eggs-clj.magpie-mysql2hadoop-plumber-task.core"
+                       :klass "com.jd.bdp.magpie.magpie_eggs_clj.magpie_mysql2hadoop_plumber_task.core"
                        :group "default"
                        :type "memory"}}))
          conf-list)))

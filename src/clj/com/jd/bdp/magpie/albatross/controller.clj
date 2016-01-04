@@ -64,8 +64,8 @@
                                     "update-time" now})
       ; 遍历每个conf，并依次提交远程任务
       (doseq [task-conf (parser/parse job-id)]
-        (let [task-id (key task-conf)
-              conf (val task-conf)
+        (let [task-id (first (keys task-conf))
+              conf (first (vals task-conf))
               now (magpie-utils/current-time-millis)]
           (swap! *all-tasks* assoc-in [job-id task-id] {:start-time now
                                                         :update-time now
@@ -207,6 +207,7 @@
 
 (defn get-task-conf
   [job-id task-id]
-  (json/write-str {:job-id job-id
+  (json/write-str (:conf (get (get @*all-tasks* job-id) task-id)))
+  #_(json/write-str {:job-id job-id
                    :task-id task-id
                    :conf (:conf (get (get @*all-tasks* job-id) task-id))}))

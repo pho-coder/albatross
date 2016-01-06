@@ -4,7 +4,7 @@
            (com.jd.exception BuffaloException)
            (java.util Date)))
 
-(def PREFIX "*p*")
+(def SEPARATOR "*p*")
 ; TODO 以下信息来自哪里？
 (def BASE-CONF {:jar "magpie-test-plumber-task-0.0.1-SNAPSHOT-standalone.jar"
                 :klass "com.jd.bdp.magpie.magpie_eggs_clj.magpie_test_plumber_task.core"
@@ -14,7 +14,7 @@
 (defn- generate-task-name
   "plumber*p*albatross-test-0*p*test-job*p*task-1"
   [albatross-id job-id index]
-  (str "plumber" PREFIX albatross-id PREFIX job-id PREFIX "task-" index))
+  (str "plumber" SEPARATOR albatross-id SEPARATOR job-id SEPARATOR "task-" index))
 
 (defn template-bean->map
   " 因为bean方法不能迭代地执行，把JavaBean内部的JavaBean变成Map
@@ -27,7 +27,6 @@
 
 (defn get-template-bean
   [template-id]
-  (log/info (Date.))
   (let [ps (PlumberServiceImpl.)
         template-bean (try
                         (.getTemplateById ps template-id)
@@ -60,4 +59,30 @@
             {:source source :target target :sql sql :jar jar :klass klass :group group :type type}}"
   [job-id & {:keys [strategy-fn]
              :or {strategy-fn default-split-fn}}]
-  (strategy-fn (get-template-bean job-id) job-id))
+  ; (strategy-fn (get-template-bean job-id) job-id)
+  ; TODO 以下在测试时使用
+  (let [conf-list (strategy-fn (get-template-bean job-id) job-id)]
+    (map (fn [[task-id conf]]
+           (let [ext-tar-ds (:extTargetDs conf)
+                 target-table (:targetTableName conf)
+                 sql (:sqlStr conf)
+                 target-path (str (:extend1 ext-tar-ds) "/" target-table)
+                 ext-src-ds (first (:extSrcDsList conf))
+                 host (:dbHost ext-src-ds)
+                 user (:dbUser ext-src-ds)
+                 password (:dbPassword ext-src-ds)
+                 src-db-name (:dbName ext-src-ds)
+                 source (:dbType ext-src-ds)]
+             ; 最终的配置
+             {task-id {:source source
+                       :target target-path
+                       :host host
+                       :sqls [sql]
+                       :db-name src-db-name
+                       :user user
+                       :password password
+                       :jar "magpie-mysql2hadoop-plumber-task-0.0.1-SNAPSHOT-standalone.jar"
+                       :klass "com.jd.bdp.magpie.magpie_eggs_clj.magpie_mysql2hadoop_plumber_task.core"
+                       :group "default"
+                       :type "memory"}}))
+         conf-list)))

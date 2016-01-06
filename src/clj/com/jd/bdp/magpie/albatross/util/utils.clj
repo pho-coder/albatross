@@ -82,3 +82,14 @@
     (if (create-job-node job-node)
       (set-job-info job-node job-info)
       false)))
+
+(defn delete-job-node
+  [job-node]
+  (try
+    (if (zk/check-exists? job-node)
+      (do (zk/delete job-node)
+          true)
+      true)
+    (catch Exception e
+      (log/error e)
+      false)))

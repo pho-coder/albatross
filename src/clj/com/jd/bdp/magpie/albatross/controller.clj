@@ -62,9 +62,10 @@
       (utils/register-job job-node {"albatross" @albatross-id
                                     "start-time" now
                                     "update-time" now})
+      ; 遍历每个conf，并依次提交远程任务
       (doseq [task-conf (parser/parse job-id)]
-        (let [task-id (key task-conf)
-              conf (val task-conf)
+        (let [task-id (first (keys task-conf))
+              conf (first (vals task-conf))
               now (magpie-utils/current-time-millis)]
           (swap! *all-tasks* assoc-in [job-id task-id] {:start-time now
                                                         :update-time now
@@ -107,6 +108,11 @@
                                                jobid)
         (log/error "operation type error: " operation)))))
 
+(defn delete-jobs!
+  [job-id]
+  (swap! *all-jobs* dissoc job-id)
+  (utils/delete-job-node (str "/albatross/jobs/" job-id)))
+
 (defn check-job-status!
   []
   (doseq [one @*all-jobs*]
@@ -118,7 +124,7 @@
           status (:status value)
           now (magpie-utils/current-time-millis)]
       (when (> (- now update-time) DEAD-TIMEOUT-MILLIS)
-        (swap! *all-jobs* dissoc jobid)
+        (delete-jobs! jobid)
         (log/info "delete dead job:" one)))))
 
 (defn delete-tasks!
@@ -201,6 +207,7 @@
 
 (defn get-task-conf
   [job-id task-id]
-  (json/write-str {:job-id job-id
+  (json/write-str (:conf (get (get @*all-tasks* job-id) task-id)))
+  #_(json/write-str {:job-id job-id
                    :task-id task-id
                    :conf (:conf (get (get @*all-tasks* job-id) task-id))}))

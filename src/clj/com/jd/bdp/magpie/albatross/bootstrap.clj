@@ -11,3 +11,4 @@
 (def OPERATION-TYPE-ADD-JOB "add-job")
 (def OPERATION-TYPE-UPDATE-JOB "update-job")
 (def DEAD-TIMEOUT-MILLIS 20000)
+(def ALBATROSS-SERVICE-NAME "albatross-service")

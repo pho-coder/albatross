@@ -17,9 +17,8 @@
                 :type "memory"})
 
 (defn- generate-task-name
-  "plumber*p*albatross-test-0*p*test-job*p*task-1"
-  [albatross-id job-id index]
-  (str "plumber" SEPARATOR albatross-id SEPARATOR job-id SEPARATOR "task-num-" index))
+  [albatross-id job-id uuid]
+  (str "plumber" SEPARATOR albatross-id SEPARATOR job-id SEPARATOR uuid))
 
 (defn template-bean->map
   " 因为bean方法不能迭代地执行，把JavaBean内部的JavaBean变成Map
@@ -39,7 +38,7 @@
 
 (defn- get-sub-job-configs
   [template-bean job-id]
-  (let [dt ("2016-01-07")
+  (let [dt "2016-01-07"
         sub-jobs (atom [])
         resource-dept (let [rd (.getResourceDepartment template-bean)]
                         (if-not (or (= "0" rd) (= "1" rd) (= "2" rd))
@@ -108,36 +107,34 @@
             _ (log/info "real sqls : " real-sqls)]
         (doseq [real-sql real-sqls]
           (log/info "real-sql : " real-sql)
-          (let [reader-table (util/get-table-name (clojure.string/split (util/rep-sql real-sql) #"\s+"))
-                _ (log/info "reader-table : " reader-table)
-                sub-job-id (generate-task-name ALBATROSS-SERVICE-NAME job-id (util/uuid))
+          (let [sub-job-id (generate-task-name ALBATROSS-SERVICE-NAME job-id (util/uuid))
                 base-conf BASE-CONF
                 sub-conf {:reader {:subprotocol dbType
-                                              :host        dbHost
-                                              :port        dbPort
-                                              :database    dbName
-                                              :user        dbUser
-                                              :password    dbPassword
-                                              :extend      dbExtend
-                                              :charset     target-dsCharset
-                                              :sql         real-sql
-                                              :fetch-size  100}
-                                     :writer {:type              target-dbType
-                                              :subprotocol       target-dbType
-                                              :host              target-dbHost
-                                              :port              target-dbPort
-                                              :database          target-dbName
-                                              :user              target-dbUser
-                                              :password          target-dbPassword
-                                              :tablename         target-table ;type,index when elas
-                                              :extend            target-extend ;host:port when es
-                                              :extend1           target-extend1 ;table fields when elas
-                                              :compression-codec "lzo"
-                                              :charset           dsCharset
-                                              :delete-sql        delete-sql
-                                              :dt                date-partition ;data-date
-                                              :resource-dept     resource-dept}
-                                     }
+                                   :host        dbHost
+                                   :port        dbPort
+                                   :database    dbName
+                                   :user        dbUser
+                                   :password    dbPassword
+                                   :extend      dbExtend
+                                   :charset     target-dsCharset
+                                   :sql         real-sql
+                                   :fetch-size  100}
+                          :writer {:type              target-dbType
+                                   :subprotocol       target-dbType
+                                   :host              target-dbHost
+                                   :port              target-dbPort
+                                   :database          target-dbName
+                                   :user              target-dbUser
+                                   :password          target-dbPassword
+                                   :tablename         target-table ;type,index when elas
+                                   :extend            target-extend ;host:port when es
+                                   :extend1           target-extend1 ;table fields when elas
+                                   :compression-codec "lzo"
+                                   :charset           dsCharset
+                                   :delete-sql        delete-sql
+                                   :dt                date-partition ;data-date
+                                   :resource-dept     resource-dept}
+                          }
                 sub-job {sub-job-id (into base-conf sub-conf)}]
             (swap! sub-jobs conj sub-job)))))
     @sub-jobs))
@@ -189,3 +186,17 @@
                        :user user
                        :password password}}))
          conf-list)))
+
+
+(defn parse
+  "return struct:
+  strategy-fn return a map :
+  {task-id [;; one thread in task one map
+            {:source source :target target :sql sql :jar jar :klass klass :group group :type type}}"
+  [job-id]
+  ; (strategy-fn (get-template-bean job-id) job-id)
+  ; TODO 以下在测试时使用
+  (let [template-bean (get-template-bean job-id)]
+    (log/info "config" template-bean)
+    (log/info "config" (get-sub-job-configs template-bean job-id))
+    (get-sub-job-configs template-bean job-id)))

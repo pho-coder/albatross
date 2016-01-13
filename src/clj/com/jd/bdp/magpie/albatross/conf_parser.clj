@@ -20,8 +20,9 @@
   )
 
 (defn- group-sqls
+  "把sqls分组，每组 10 条，对应在task中的 10 个读取线程"
   [sql-list]
-  (partition 10 sql-list))
+  (partition THREAD-NUM sql-list))
 
 ; TODO 以下信息来自哪里？
 (def BASE-CONF {:jar "magpie-mysql2hadoop-plumber-task-0.0.2-SNAPSHOT-standalone.jar"

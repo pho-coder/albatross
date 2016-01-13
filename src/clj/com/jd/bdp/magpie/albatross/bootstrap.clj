@@ -3,6 +3,7 @@
 (use 'clojure.set)
 
 (def HEARTBEAT-COAST "heartbeat-coast")
+(def THREAD-NUM "heartbeat-coast")
 (def STATUS-INIT "init")
 (def STATUS-RUNNING "running")
 (def STATUS-REJECT "reject")

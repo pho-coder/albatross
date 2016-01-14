@@ -3,7 +3,7 @@
 (use 'clojure.set)
 
 (def HEARTBEAT-COAST "heartbeat-coast")
-(def THREAD-NUM "heartbeat-coast")
+(def THREAD-NUM 10)
 (def STATUS-INIT "init")
 (def STATUS-RUNNING "running")
 (def STATUS-REJECT "reject")
@@ -13,3 +13,4 @@
 (def OPERATION-TYPE-UPDATE-JOB "update-job")
 (def DEAD-TIMEOUT-MILLIS 20000)
 (def ALBATROSS-SERVICE-NAME "albatross-service")
+(def SEPARATOR "*p*")

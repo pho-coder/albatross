@@ -1,7 +1,9 @@
 (ns com.jd.bdp.magpie.albatross.conf-parser
   (:require [clojure.tools.logging :as log]
             [com.jd.bdp.magpie.albatross.util.template-util :as template]
-            [com.jd.bdp.magpie.albatross.util.util :as util])
+            [clj-http.client :as client]
+            [com.jd.bdp.magpie.albatross.util.util :as util]
+            [clojure.data.json :as json])
   (:use com.jd.bdp.magpie.albatross.bootstrap)
   (:import (com.jd.extservice.impl PlumberServiceImpl)
            (com.jd.exception BuffaloException)
@@ -11,22 +13,21 @@
 
 (defn- get-dictionary-value
   [key]
-  )
+  (client/get DICT-BASE-URL
+              {:query-params {:appId DICT-APP-ID
+                              :token DICT-TOKEN
+                              :time  (System/currentTimeMillis)
+                              :data  (json/write-str {:key key
+                                                      :erp DICT-USER-ERP})}}))
 
 (defn- generate-base-conf
   []
-  )
+  (reduce (fn [acc [k v]] (assoc acc k (get-dictionary-value v))) {} BASE-CONF-KEY))
 
 (defn- group-sqls
   "把sqls分组，每组 10 条，对应在task中的 10 个读取线程"
   [sql-list]
   (partition-all THREAD-NUM sql-list))
-
-; TODO 以下信息来自哪里？
-(def BASE-CONF {:jar "magpie-mysql2hadoop-plumber-task-0.0.2-SNAPSHOT-standalone.jar"
-                :klass "com.jd.bdp.magpie.magpie_eggs_clj.magpie_mysql2hadoop_plumber_task.core"
-                :group "default"
-                :type "memory"})
 
 (defn- generate-task-name
   [albatross-id job-id uuid]
@@ -42,6 +43,7 @@
 (defn- get-sub-job-configs
   [template-bean job-id]
   (let [dt "2016-01-07"
+        base-conf (generate-base-conf)
         sub-jobs (atom [])
         resource-dept (let [rd (.getResourceDepartment template-bean)]
                         (if-not (or (= "0" rd) (= "1" rd) (= "2" rd))
@@ -111,7 +113,6 @@
         (doseq [real-sql (group-sqls real-sqls)]
           (log/info "real-sql : " real-sql)
           (let [sub-job-id (generate-task-name ALBATROSS-SERVICE-NAME job-id (util/uuid))
-                base-conf BASE-CONF
                 sub-conf {:reader {:subprotocol dbType
                                    :host        dbHost
                                    :port        dbPort

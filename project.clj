@@ -1,4 +1,4 @@
-(defproject com.jd.bdp.magpie/albatross "0.1.0.20160104-SNAPSHOT"
+(defproject com.jd.bdp.magpie/albatross "0.1.0.20160114-SNAPSHOT"
   :description "magpie plumber jobs sorter"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
@@ -16,6 +16,9 @@
                  [org.clojure/tools.logging "0.3.1"]
                  [thrift-clj "0.3.0"]
                  [clj-zookeeper "0.2.0-SNAPSHOT"]
+                 [clj-http "0.7.6"]               ;0.9.2
+                 [sigmund "0.1.1"]
+                 [commons-lang/commons-lang "2.6"]
 
                  [com.jd.bdp.buffalo.sdk/bdp-buffalo-sdk "1.0.4-SNAPSHOT"]
                  [com.jd.bdp.magpie/magpie-framework-clj "0.1.0-SNAPSHOT"]
